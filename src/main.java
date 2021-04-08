@@ -16,14 +16,13 @@ public class main {
         int num;
         BufferedReader reader;
         BufferedWriter writer;
-        Socket socket;
-        try {
-            socket = new Socket(host, port);
+        try(Socket socket = new Socket(host, port)) {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             while (true) {
                 System.out.println("Enter number:");
                 String input = in.nextLine();
+                input = "(?>" + input + ")";
                 if (input.equals("")) {
                     System.out.println("Program finishing...");
                     break;
@@ -42,16 +41,19 @@ public class main {
             socket.close();
             reader.close();
             writer.close();
-        } catch (Exception ex) {
+        }catch (SocketException e) {
             System.out.println("No connection");
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception ex) {
+            System.out.println("Program failed because of: " + ex.getMessage());
         }
         in.close();
     }
 
     public static void server(int port) {
-        ServerSocket serverSocket;
-        try {
-            serverSocket = new ServerSocket(port);
+        try(ServerSocket serverSocket = new ServerSocket(port)) {
             System.out.println("Server is ready");
             while(true) {
                 Socket client = serverSocket.accept();
@@ -80,7 +82,7 @@ public class main {
                     }
                 }).start();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Server exception: ");
             e.printStackTrace();
         }
